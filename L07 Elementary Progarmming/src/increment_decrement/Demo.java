@@ -13,8 +13,7 @@ public class Demo {
 //		System.out.println(i--);// post-decrement
 //		System.out.println(i);
 		
-		System.out.println(--i); // pre-decrement
-		System.out.println(i);
+//		System.out.println(--i); // pre-decrement
 	}
 
 }
