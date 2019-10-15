@@ -34,8 +34,8 @@ public class Demo {
 		case 8:
 			System.out.println("You got between 5 and 8.");
 			break;
-		default:
-			System.out.println("No such letter grade!");
+//		default:
+//			System.out.println("No such letter grade!");
 		}
 	}
 
