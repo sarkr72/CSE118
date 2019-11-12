@@ -12,38 +12,45 @@ public class RestaurantOrderApp {
 		String serverName = getServerName();
 //
 		int tableNumber = getTableNumber();
-		
-		int quantity = 0;
-	
-		String description = "";
-		double subtotal = 0.0;
-		
+		final int MAX_ITEMS = 100;
+		int[] quantities = new int[MAX_ITEMS];
+		String[] descriptions = new String[MAX_ITEMS];
+		double[] prices = new double[MAX_ITEMS];
+		double[] subtotals = new double[MAX_ITEMS];
+		int count = 0;
+		double grandTotal = 0;
+
 		while (true) {
 			String longString = getOrder();
 			int commaPosition = longString.indexOf(',');
 			String itemNumber = longString.substring(0, commaPosition);
-			if(itemNumber.contentEquals("0")) {
+			if (itemNumber.contentEquals("0")) {
 				break;
 			}
-			quantity = Integer.parseInt(longString.substring(commaPosition + 2));
+
+			quantities[count] = Integer.parseInt(longString.substring(commaPosition + 2));
 			longString = getItemPriceAndDescription(itemNumber);
-			description = longString.substring(0, longString.indexOf(","));
-			double price = Double.parseDouble(longString.substring(longString.indexOf(",") + 2));
-			subtotal = getSubtotal(price, quantity);
+			descriptions[count] = longString.substring(0, longString.indexOf(","));
+			prices[count] = Double.parseDouble(longString.substring(longString.indexOf(",") + 2));
+			subtotals[count] = getSubtotal(prices[count], quantities[count]);
+			grandTotal += subtotals[count];
+			count++;
 		}
-		showCheck(serverName, tableNumber, description, quantity, subtotal);
+
+		showCheck(serverName, tableNumber, descriptions, quantities, subtotals, grandTotal, count);
 //		showMenuItems();
 //		String serverName = getServerName();
 //
 //		int tableNumber = getTableNumber();
 //		System.out.print(serverName + ": at Table " + tableNumber);
 	}
-	
+
 	public static double getSubtotal(double price, int quantity) {
 		return price * quantity;
 	}
-	
-	public static void showCheck(String serverName, int tableNumber, String description, int quantity, double subtotal) {
+
+	public static void showCheck(String serverName, int tableNumber, String[] descriptions, int[] quantities,
+			double[] subtotals, double grandTotal, int count) {
 		double TAX_RATE = 0.08625;
 		String checkFormat = "%-4S%-10S%4d%10.2f\n";
 		String checkDashLine = "----------------------------";
@@ -51,16 +58,14 @@ public class RestaurantOrderApp {
 		System.out.println("Server Name: " + serverName);
 		System.out.println("Table Number: " + tableNumber);
 		System.out.println(checkDashLine);
-		System.out.printf(checkFormat, "1.", description, quantity, subtotal);
+		for (int i = 0; i < count; i++) {
+			System.out.printf(checkFormat, (i + 1 + "."), descriptions[i], quantities[i], subtotals[i]);
+		}
 		System.out.println(checkDashLine);
-		System.out.printf("%-3S%25.2f\n", "TAX", subtotal * TAX_RATE);
-		System.out.printf("%-8S%20.2f\n", "Total", (subtotal + (subtotal * TAX_RATE)));
+		System.out.printf("%-3S%25.2f\n", "TAX", grandTotal * TAX_RATE);
+		System.out.printf("%-8S%20.2f\n", "Total", (grandTotal + (grandTotal * TAX_RATE)));
 		System.out.println(checkDashLine);
 	}
-	
-	
-	
-	
 
 	public static String getItemPriceAndDescription(String itemAsString) {
 		int itemNumber = Integer.parseInt(itemAsString);
@@ -84,7 +89,7 @@ public class RestaurantOrderApp {
 			price = 0.0;
 			description = "None";
 		}
-		
+
 		return description + ", " + price;
 
 	}
@@ -96,9 +101,11 @@ public class RestaurantOrderApp {
 		System.out.println("Enter the order by providing item number: ");
 		itemNumber = kb.nextInt();
 		itemNumberAndQuantity = itemNumberAndQuantity + itemNumber + ", ";
-		System.out.println("Enter the quantity: ");
-		quantity = kb.nextInt();
-		itemNumberAndQuantity = itemNumberAndQuantity + quantity;
+		if (itemNumber != 0) {
+			System.out.println("Enter the quantity: ");
+			quantity = kb.nextInt();
+			itemNumberAndQuantity = itemNumberAndQuantity + quantity;
+		}
 		return itemNumberAndQuantity;
 	}
 
@@ -114,7 +121,7 @@ public class RestaurantOrderApp {
 
 	public static String getServerName() {
 		// step 1 get server name
-		
+
 		System.out.println("Enter server's name: ");
 		return kb.nextLine();
 	}
